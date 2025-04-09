@@ -96,7 +96,20 @@ def feed():
     """User feed showing all posts"""
     posts = post_service.get_all_posts()
     user_id = session.get('user_id')
+    
+    # Check if user_id exists in session
+    if not user_id:
+        flash('Please login to continue', 'warning')
+        return redirect(url_for('user.login'))
+    
     user = user_service.get_user_by_id(user_id)
+    
+    # Check if user exists
+    if not user:
+        flash('User not found. Please login again.', 'warning')
+        session.clear()
+        return redirect(url_for('user.login'))
+    
     return render_template('user/feed.html', posts=posts, user=user, user_service=user_service)
 
 @user_bp.route('/profile')
@@ -104,7 +117,20 @@ def feed():
 def profile():
     """Current user's profile"""
     user_id = session.get('user_id')
+    
+    # Check if user_id exists in session
+    if not user_id:
+        flash('Please login to continue', 'warning')
+        return redirect(url_for('user.login'))
+    
     user = user_service.get_user_by_id(user_id)
+    
+    # Check if user exists
+    if not user:
+        flash('User not found. Please login again.', 'warning')
+        session.clear()
+        return redirect(url_for('user.login'))
+    
     user_posts = post_service.get_posts_by_user_id(user_id)
     
     return render_template('user/profile.html', user=user, posts=user_posts)
@@ -128,7 +154,19 @@ def view_profile(user_id):
 def edit_profile():
     """Edit current user's profile"""
     user_id = session.get('user_id')
+    
+    # Check if user_id exists in session
+    if not user_id:
+        flash('Please login to continue', 'warning')
+        return redirect(url_for('user.login'))
+    
     user = user_service.get_user_by_id(user_id)
+    
+    # Check if user exists
+    if not user:
+        flash('User not found. Please login again.', 'warning')
+        session.clear()
+        return redirect(url_for('user.login'))
     
     form = ProfileForm(obj=user)
     
