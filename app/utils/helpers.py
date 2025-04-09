@@ -26,10 +26,33 @@ def truncate_text(text, length=100, ellipsis='...'):
     return text[:length].rsplit(' ', 1)[0] + ellipsis
 
 def sanitize_html(value):
-    """Basic HTML sanitization"""
+    """Enhanced HTML sanitization to prevent XSS attacks"""
     if not value:
         return ""
-    return re.sub(r'<[^>]*?>', '', value)
+    
+    # First pass: Remove all HTML tags
+    value = re.sub(r'<[^>]*?>', '', value)
+    
+    # Convert special characters to HTML entities
+    value = value.replace('&', '&amp;')
+    value = value.replace('<', '&lt;')
+    value = value.replace('>', '&gt;')
+    value = value.replace('"', '&quot;')
+    value = value.replace("'", '&#x27;')
+    value = value.replace('/', '&#x2F;')
+    
+    # Remove potentially dangerous patterns
+    value = re.sub(r'javascript:', '', value, flags=re.IGNORECASE)
+    value = re.sub(r'data:', '', value, flags=re.IGNORECASE)
+    value = re.sub(r'vbscript:', '', value, flags=re.IGNORECASE)
+    value = re.sub(r'on\w+\s*=', '', value, flags=re.IGNORECASE)
+    value = re.sub(r'expression\s*\(', '', value, flags=re.IGNORECASE)
+    value = re.sub(r'url\s*\(', 'url(', value, flags=re.IGNORECASE)  # Normalize url() calls
+    
+    # Remove excessive whitespace
+    value = re.sub(r'\s+', ' ', value).strip()
+    
+    return value
 
 def is_valid_url(url):
     """Basic URL validation"""
@@ -49,4 +72,5 @@ def register_template_filters(app):
     app.jinja_env.filters['datetime'] = format_datetime
     app.jinja_env.filters['nl2br'] = nl2br
     app.jinja_env.filters['truncate'] = truncate_text
+    app.jinja_env.filters['sanitize'] = sanitize_html
     app.jinja_env.globals['now'] = lambda format='%Y': datetime.datetime.now().strftime(format)

@@ -1,6 +1,6 @@
 # Mini Social Media Platform
 
-A modular mini social media website built with Flask, featuring user and admin functionalities, organized with blueprints.
+A modular mini social media website built with Flask, featuring user and admin functionalities, organized with blueprints. This application follows best practices for security, performance, and maintainability.
 
 ## Features
 
@@ -9,14 +9,17 @@ A modular mini social media website built with Flask, featuring user and admin f
 - **Profile Management**: Edit profile information, view other user profiles
 - **Admin Panel**: Moderate content, manage users, view statistics
 - **Responsive Design**: Works well on desktop and mobile devices
+- **Security**: CSRF protection, content sanitization, XSS protection, secure cookies
+- **Performance**: Caching strategies for static content, optimized database queries
 
 ## Technology Stack
 
 - **Backend**: Python with Flask framework
 - **Frontend**: HTML, CSS, JavaScript with Bootstrap
 - **Authentication**: Flask-Login
-- **Forms**: Flask-WTF
-- **Database**: SQLAlchemy (with configurable backend)
+- **Forms**: Flask-WTF with CSRF protection
+- **Database**: In-memory storage with SQLAlchemy-compatible interface (expandable to SQL databases)
+- **Templating**: Jinja2 with custom filters for content formatting and security
 
 ## Project Structure
 
@@ -89,6 +92,34 @@ FLASK_ENV=development flask run
 - New features should be added as separate modules in the appropriate blueprint
 - Database models should be placed in `app/database/models`
 - Services should be placed in `app/database/services`
+
+### Security Best Practices
+
+This application implements several security best practices:
+
+1. **CSRF Protection**: All forms are protected against Cross-Site Request Forgery attacks
+2. **Content Sanitization**: User-generated content is sanitized to prevent XSS attacks
+3. **Secure Cookies**: HTTP-only cookies with SameSite policy
+4. **HTTPS Enforcement**: In production, cookies are only sent over HTTPS
+5. **Password Security**: Passwords are hashed securely, never stored in plaintext
+
+### Performance Considerations
+
+The application includes several performance optimizations:
+
+1. **Static Asset Caching**: Long-lived cache headers for static assets
+2. **Efficient Database Queries**: Minimized database calls with caching where appropriate
+3. **Optimized Templates**: Templates use inheritance to reduce duplication
+
+## Deployment
+
+For production deployment, ensure you:
+
+1. Generate a strong random key for `SESSION_SECRET`
+2. Use a production-grade database (PostgreSQL recommended)
+3. Set up HTTPS with a valid SSL certificate
+4. Configure proper logging
+5. Change default admin credentials
 
 ## License
 

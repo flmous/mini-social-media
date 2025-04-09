@@ -18,10 +18,15 @@ if os.environ.get('FLASK_ENV') == 'production' and not os.environ.get('SESSION_S
 SECRET_KEY = os.environ.get("SESSION_SECRET", os.urandom(24).hex())
 
 # Session configuration
-PERMANENT_SESSION_LIFETIME = timedelta(days=7)
-SESSION_TYPE = "filesystem"
-SESSION_PERMANENT = True
-SESSION_USE_SIGNER = True
+PERMANENT_SESSION_LIFETIME = timedelta(days=7)  # How long a user session lasts before requiring re-login
+SESSION_TYPE = "filesystem"  # Store session data on the filesystem
+SESSION_PERMANENT = True  # Keep the session active for PERMANENT_SESSION_LIFETIME
+SESSION_USE_SIGNER = True  # Sign the session cookie for extra security
+
+# Security-related cookie settings
+SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript from accessing the session cookie (prevents XSS)
+SESSION_COOKIE_SECURE = os.environ.get('FLASK_ENV') == 'production'  # Only send cookie over HTTPS in production
+SESSION_COOKIE_SAMESITE = 'Lax'  # Prevents CSRF attacks by limiting cross-site requests
 
 # In-memory database configuration (could be replaced with SQLite or other DB in the future)
 DATABASE_URI = os.environ.get("DATABASE_URL", "sqlite:///:memory:")

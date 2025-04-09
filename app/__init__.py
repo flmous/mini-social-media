@@ -55,6 +55,17 @@ def create_app():
         response.headers['X-Frame-Options'] = 'SAMEORIGIN'
         # Control cross-origin resource sharing
         response.headers['Access-Control-Allow-Origin'] = '*'
+        
+        # Performance optimization: add caching headers for static files
+        if request.path.startswith('/static/'):
+            # Cache static files for 1 year (immutable)
+            response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+        else:
+            # Use no-cache for dynamic content to ensure fresh data
+            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+        
         return response
     
     # Import and register blueprints
