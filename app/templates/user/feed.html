@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}Feed | Mini Social{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Main Feed -->
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-stream me-2"></i>Latest Posts</h5>
+                <a href="{{ url_for('user.new_post') }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus me-1"></i> New Post
+                </a>
+            </div>
+            <div class="card-body">
+                {% if posts %}
+                    <div class="posts-container">
+                        {% for post in posts %}
+                            <div class="card mb-3 post-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div class="d-flex align-items-center">
+                                            {% if post.avatar %}
+                                                <img src="{{ post.avatar }}" alt="{{ post.username }}" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                            {% else %}
+                                                <div class="bg-secondary rounded-circle d-inline-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
+                                                    <span class="text-white fw-bold">{{ post.username[:1].upper() }}</span>
+                                                </div>
+                                            {% endif %}
+                                            <div>
+                                                <a href="{{ url_for('user.view_profile', user_id=post.user_id) }}" class="fw-bold text-decoration-none">{{ post.username }}</a>
+                                                <div class="text-muted small">{{ post.created_at.strftime('%B %d, %Y %H:%M') }}</div>
+                                            </div>
+                                        </div>
+                                        
+                                        {% if session.get('user_id') == post.user_id %}
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-light" type="button" id="postOptions{{ post.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="fas fa-ellipsis-h"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="postOptions{{ post.id }}">
+                                                    <li>
+                                                        <form method="POST" action="{{ url_for('user.delete_post', post_id=post.id) }}" 
+                                                              onsubmit="return confirm('Are you sure you want to delete this post?');">
+                                                            <button type="submit" class="dropdown-item text-danger">
+                                                                <i class="fas fa-trash me-1"></i> Delete
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <p class="card-text">{{ post.content|nl2br }}</p>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mt-3">
+                                        <div>
+                                            <form method="POST" action="{{ url_for('user.like_post', post_id=post.id) }}" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-heart me-1"></i> {{ post.like_count }}
+                                                </button>
+                                            </form>
+                                            <a href="{{ url_for('user.post_detail', post_id=post.id) }}" class="btn btn-sm btn-outline-secondary ms-1">
+                                                <i class="fas fa-comment me-1"></i> Comment
+                                            </a>
+                                        </div>
+                                        <a href="{{ url_for('user.post_detail', post_id=post.id) }}" class="btn btn-sm btn-link">
+                                            View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-newspaper fa-3x text-muted mb-3"></i>
+                        <h5>No posts yet</h5>
+                        <p class="text-muted mb-3">Be the first to share something with the community!</p>
+                        <a href="{{ url_for('user.new_post') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i> Create the First Post
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- User Profile Card -->
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                {% set user_id = session.get('user_id') %}
+                {% set user = user_service.get_user_by_id(user_id) %}
+                
+                {% if user.avatar %}
+                    <img src="{{ user.avatar }}" alt="{{ user.username }}" class="rounded-circle img-fluid mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                {% else %}
+                    <div class="bg-secondary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 100px; height: 100px;">
+                        <span class="display-6 text-white">{{ user.username[:1].upper() }}</span>
+                    </div>
+                {% endif %}
+                
+                <h5 class="mb-1">{{ user.username }}</h5>
+                <p class="text-muted small">
+                    {% if user.bio %}
+                        {{ user.bio|truncate(100) }}
+                    {% else %}
+                        <span class="fst-italic">No bio provided</span>
+                    {% endif %}
+                </p>
+                
+                <div class="d-grid">
+                    <a href="{{ url_for('user.profile') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-user me-1"></i> View My Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Post -->
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-pen me-2"></i>Quick Post</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('user.new_post') }}">
+                    {{ form.hidden_tag() if form }}
+                    
+                    <div class="mb-3">
+                        <textarea name="content" class="form-control" rows="3" placeholder="What's on your mind?"></textarea>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i> Post
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Trending or Suggested Content -->
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-fire me-2"></i>Suggested Users</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% set other_users = user_service.get_all_users() %}
+                    {% set suggestions_displayed = 0 %}
+                    
+                    {% for suggested_user in other_users %}
+                        {% if suggested_user.id != user_id and suggested_user.is_active and suggestions_displayed < 5 %}
+                            {% set suggestions_displayed = suggestions_displayed + 1 %}
+                            <div class="list-group-item">
+                                <div class="d-flex align-items-center">
+                                    {% if suggested_user.avatar %}
+                                        <img src="{{ suggested_user.avatar }}" alt="{{ suggested_user.username }}" 
+                                             class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-secondary rounded-circle d-inline-flex align-items-center justify-content-center me-2" 
+                                             style="width: 40px; height: 40px;">
+                                            <span class="text-white">{{ suggested_user.username[:1].upper() }}</span>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0">{{ suggested_user.username }}</h6>
+                                        <small class="text-muted">{{ suggested_user.bio|truncate(20) if suggested_user.bio else "No bio" }}</small>
+                                    </div>
+                                    
+                                    <a href="{{ url_for('user.view_profile', user_id=suggested_user.id) }}" 
+                                       class="btn btn-sm btn-outline-primary">View</a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if suggestions_displayed == 0 %}
+                        <p class="text-center text-muted my-3">No suggested users available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
