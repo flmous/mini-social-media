@@ -94,7 +94,7 @@
         <div class="card mb-4">
             <div class="card-body text-center">
                 {% set user_id = session.get('user_id') %}
-                {% set user = user_service.get_user_by_id(user_id) %}
+                <!-- User already passed from the route -->
                 
                 {% if user.avatar %}
                     <img src="{{ user.avatar }}" alt="{{ user.username }}" class="rounded-circle img-fluid mb-3" style="width: 100px; height: 100px; object-fit: cover;">

@@ -95,7 +95,9 @@ def logout():
 def feed():
     """User feed showing all posts"""
     posts = post_service.get_all_posts()
-    return render_template('user/feed.html', posts=posts)
+    user_id = session.get('user_id')
+    user = user_service.get_user_by_id(user_id)
+    return render_template('user/feed.html', posts=posts, user=user, user_service=user_service)
 
 @user_bp.route('/profile')
 @login_required
