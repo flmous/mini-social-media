@@ -22,6 +22,10 @@ def create_app():
     from app.database.database import init_db
     init_db(app)
     
+    # Register template filters
+    from app.utils.helpers import register_template_filters
+    register_template_filters(app)
+    
     # Register error handlers
     @app.errorhandler(404)
     def page_not_found(e):
