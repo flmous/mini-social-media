@@ -33,5 +33,5 @@ DATABASE_URI = os.environ.get("DATABASE_URL", "sqlite:///:memory:")
 
 # Admin account configuration
 ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "admin@example.com")
